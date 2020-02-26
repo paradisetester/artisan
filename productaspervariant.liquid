@@ -1,0 +1,131 @@
+{%- assign product = all_products[section.settings.product] -%}
+
+<section class="our_top_prod_sec">
+  <div class="container">
+    <h2 class="section_title">{{ section.settings.title }}</h2>
+
+    <div class="row">
+      {% for block in section.blocks %}
+
+    {% assign product_item = all_products[block.settings.product] %}
+    {% assign productColor = block.settings.productColor | capitalize %}
+      
+	   
+  
+      <div class="col-lg-4 col-md-4 col-sm-12">
+        <div class="prod_box">
+          <div class="offer-img">
+            
+            {% if productColor != blank %}   
+            
+             {% for product_option in product_item.options_with_values %}
+            {% if product_option.name == 'Color' %}
+         
+              {% for value in product_option.values %}
+            
+               {% if value contains productColor %}
+              
+
+                {% for variant in product_item.variants %}
+                  {% if variant.title contains value %}
+            
+    {% capture discount %}
+    {{ product_item.price | minus:variant.compare_at_price | times:100 | divided_by:product_item.price }}% 
+    {% endcapture %}
+      
+         {% if variant.compare_at_price %}
+            <span >{{ discount }} Off</span>
+      {% endif %}
+            {% assign price_variant = variant.compare_at_price %}
+                            
+             <img src="{{ variant.image | img_url: '500x' }}" alt="{{productColor}}">
+                
+               
+                  {% endif %}
+                {% endfor %}
+               
+        		{% endif %}
+              {% endfor %}
+            
+            {% endif %}
+          {% endfor %}
+            
+            {% else %}
+             <img src="{{ product_item.images[0] | product_img_url: '500x' }}" alt="{{ image.alt | escape }}">
+            {% endif %}
+            
+            
+            
+			  </div>
+            <h3><a href="{{ product_item.url }}"> {{ product_item.title }}</a></h3>
+            {% if productColor != blank %}
+          
+           <span>{{productColor}}</span>
+          {% else %}
+          {% for collection in product_item.collections %}
+          <span>{{ collection.title | link_to: collection.url }}</span>
+           {% endfor %}
+          {% endif %}
+          {% if price_variant !=blank %}
+          <span> {{ price_variant | default: '1999' | money }} USD</span>
+         {% else %}
+           <span> {{ product_item.price | default: '1999' | money }} USD</span>
+        {% endif %}
+        </div>
+      </div>
+   {% endfor %}
+ 
+    </div>
+  </div>
+</section>
+
+
+{% schema %}
+{
+"name": "Our Top Products",
+"max_blocks": 12,
+"settings": [
+{
+"type": "text",
+"id": "title",
+"label": "Heading",
+"default": "Our Top Products"
+}
+],
+"blocks": [
+{
+"type": "product",
+"name": "product",
+"settings": [
+{
+"label": "Products",
+"id": "product",
+"type": "product"
+},
+{
+"label": "ProductsColor",
+"id": "productColor",
+"type": "text"
+}
+]
+}
+],
+"presets": [
+{
+"name": "Our top Products",
+"category": "CONTENT",
+"blocks": [
+{
+"type": "product"
+},
+{
+"type": "product"
+},
+{
+"type": "product"
+}
+]
+}
+]
+}
+{% endschema %}
